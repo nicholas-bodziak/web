@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferramenta de Monitoração</title>
-    <!-- Adicionando a biblioteca Tailwind CSS para estilização rápida e responsiva -->
+    <title>Libs de Monitoração</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Configuração do Tailwind para usar a fonte Inter e cores personalizadas
@@ -15,39 +14,52 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        'dark-blue': '#0a192f',
-                        'light-blue': '#112240',
-                        'text-gray': '#8892b0',
+                        'primary-blue': '#05132A', // Azul Índigo para ações principais
+                        'secundary-blue': '#05132A', // Verde Esmeralda para ações secundárias
+                        'card-bg': '#FFFFFF', // Fundo do cartão branco
+                        'body-bg': '#F3F4F6', // Fundo do body cinza claro
+                        'text-dark': '#1F2937', // Texto principal escuro
+                        'text-light': '#6B7280', // Texto secundário
+                        'input-bg': '#FFFFFF', // Fundo do input
+                        'input-border': '#D1D5DB', // Borda do input
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Estilo para o fundo cinza claro para contraste suave */
+        /* Estilos globais para um visual mais agradável */
         body {
-            background-color: #e2e8f0; /* Fundo mais claro e suave */
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
         }
-        /* Estilo personalizado para os tooltips */
+        /* Estilo para animações e transições */
+        .transition-all {
+            transition-property: all;
+            transition-duration: 300ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Estilos personalizados para os tooltips */
         .tooltip {
             position: relative;
             display: inline-block;
         }
         .tooltip .tooltip-text {
             visibility: hidden;
-            background-color: #4b5563; /* Cinza escuro para o tooltip */
+            background-color: #4B5563;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px;
+            padding: 5px 8px;
             position: absolute;
-            z-index: 10; /* Z-index aumentado para garantir que fique acima de outros elementos */
-            bottom: 125%;
+            z-index: 10;
+            bottom: 125%; /* Posição acima do elemento */
             left: 50%;
-            margin-left: -70px;
+            transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
-            width: 140px;
+            width: 200px;
+            font-size: 0.8rem;
         }
         .tooltip:hover .tooltip-text {
             visibility: visible;
@@ -61,166 +73,275 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: #4b5563 transparent transparent transparent;
+            border-color: #4B5563 transparent transparent transparent;
+        }
+        /* Animação de loading do botão */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        /* Cor de fundo para o campo desabilitado */
+        .disabled-bg {
+            background-color: #E5E7EB; /* Cor cinza mais clara */
         }
     </style>
 </head>
-<body class="font-sans flex items-center justify-center min-h-screen p-4">
+<body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-body-bg">
 
-    <!-- Container principal da aplicação com largura responsiva e novo estilo -->
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-3xl text-black border border-gray-200">
+    <!-- Tela de Introdução -->
+    <div id="introSection" class="w-full max-w-3xl mx-auto text-center">
+        <div class="bg-card-bg p-6 md:p-10 rounded-2xl shadow-2xl space-y-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-[#05132A] mb-4">Bem-vindo à Libs de Monitoração</h1>
+            <p class="text-lg text-text-dark">
+                Esta ferramenta facilita a criação de **monitores para Datadog**, **triggers e alertas para Zabbix**, e **monitores para Dynatrace**, permitindo que você automatize a configuração e a geração de impacto de forma rápida e eficiente.
+            </p>
+            <button id="startButton"
+                    class="w-full sm:w-auto mt-6 bg-primary-blue text-white py-3 px-8 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-indigo-700">
+                Iniciar criação do monitor
+            </button>
+        </div>
+    </div>
 
-        <!-- Título da aplicação -->
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Libs de Monitoração</h1>
+    <main id="monitorMain" class="w-full max-w-3xl mx-auto hidden">
+        <div class="bg-card-bg p-6 md:p-10 rounded-2xl shadow-2xl space-y-6">
 
-        <!-- Formulário para criação do monitor -->
-        <form id="monitorForm" class="space-y-4">
+            <header class="flex flex-col items-center text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-[#05132A] mb-2">Libs de Monitoração</h1>
+                <p class="text-text-light">Automatize a criação de monitores.</p>
+            </header>
 
-            <!-- Campo Ferramenta de Monitoração -->
-            <div>
-                <label for="monitoringTool" class="block text-gray-700 mb-1 font-semibold">
-                    Ferramenta de monitoração
-                    <span class="text-red-500">*</span>
-                </label>
-                <select id="monitoringTool"
-                        class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    <option value="" disabled selected>Selecione a ferramenta de monitoração</option>
-                    <option value="Datadog">Datadog</option>
-                    <option value="Zabbix">Zabbix</option>
-                    <option value="Dynatrace">Dynatrace</option>
-                </select>
-            </div>
-            
-            <!-- Novo campo "Org Datadog" que aparece apenas quando "Datadog" é selecionado -->
-            <div id="datadogOrgContainer" class="hidden">
-                <label for="datadogOrgSelect" class="block text-gray-700 mb-1 font-semibold">
-                    Org Datadog
-                    <span class="text-red-500">*</span>
-                </label>
-                <select id="datadogOrgSelect"
-                        class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    <option value="" disabled selected>Selecione a organização</option>
-                    <option value="dev">Datadog DEV</option>
-                    <option value="uat">Datadog UAT</option>
-                    <option value="prd">Datadog PRD</option>
-                </select>
-            </div>
+            <form id="monitorForm" class="space-y-6">
 
-            <!-- Campo Nome do Serviço -->
-            <div>
-                <label for="serviceName" class="block text-gray-700 mb-1 font-semibold">
-                    Nome do Serviço
-                    <span class="text-red-500">*</span>
-                </label>
-                <input type="text" id="serviceName" placeholder="Ex: auth-api"
-                       class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-            </div>
-
-            <!-- Campo Tecnologia agora é um select -->
-            <div>
-                <label for="technologySelect" class="block text-gray-700 mb-1 font-semibold">
-                    Tecnologia
-                    <span class="text-red-500">*</span>
-                </label>
-                <select id="technologySelect"
-                        class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    <option value="" disabled selected>Selecione a tecnologia</option>
-                </select>
-            </div>
-            
-            <!-- Grupo de campos para a sugestão de impacto -->
-            <div class="space-y-4 pt-2">
-                <!-- Campo Jornada -->
                 <div>
-                    <label for="journey" class="block text-gray-700 mb-1 font-semibold">
-                        Jornada
+                    <label for="monitoringTool" class="block text-sm font-medium text-text-dark mb-1">
+                        Ferramenta de monitoração
+                        <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="journey" placeholder="Ex: Conta Corrente; Investimentos"
-                           class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <select id="monitoringTool"
+                            class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark">
+                        <option value="" disabled selected>Selecione a ferramenta de monitoração</option>
+                        <option value="Datadog">Datadog</option>
+                        <option value="Zabbix">Zabbix</option>
+                        <option value="Dynatrace">Dynatrace</option>
+                    </select>
                 </div>
-    
-                <!-- Campo Produto -->
-                <div>
-                    <label for="product" class="block text-gray-700 mb-1 font-semibold">
-                        Produto
+
+                <!-- Card "Detalhes do monitor" - agora visível apenas para Datadog/Dynatrace -->
+                <div id="monitorDetailsCard" class="hidden space-y-6 p-4 bg-gray-50 rounded-xl">
+                    <h2 class="text-lg font-bold text-text-dark">Detalhes do monitor</h2>
+                    <div id="datadogOrgContainer">
+                        <label for="datadogOrgSelect" class="block text-sm font-medium text-text-dark mb-1">
+                            Org Datadog
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <select id="datadogOrgSelect"
+                                class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark">
+                            <option value="" disabled selected>Selecione a organização</option>
+                            <option value="dev">Datadog DEV</option>
+                            <option value="uat">Datadog UAT</option>
+                            <option value="prd">Datadog PRD</option>
+                        </select>
+                    </div>
+
+                    <div id="serviceNameContainer">
+                        <label for="serviceName" class="block text-sm font-medium text-text-dark mb-1">
+                            Nome do Serviço
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="serviceName" placeholder="Ex: auth-api"
+                               class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark">
+                    </div>
+
+                    <div id="technologyContainer">
+                        <label for="technologySelect" class="block text-sm font-medium text-text-dark mb-1">
+                            Tecnologia
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <select id="technologySelect"
+                                class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark">
+                            <option value="" disabled selected>Selecione a tecnologia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="zabbixFields" class="hidden space-y-6 p-4 bg-gray-50 rounded-xl">
+                    <h2 class="text-lg font-bold text-text-dark">Detalhes do Trigger</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="triggerName" class="block text-sm font-medium text-text-dark mb-1">
+                                Nome do Alerta
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="triggerName"
+                                placeholder="Ex: CPU Alta no Servidor Principal"
+                                class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="hostGroup" class="block text-sm font-medium text-text-dark mb-1">
+                                Grupo de Hosts
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="hostGroup"
+                                disabled
+                                class="w-full disabled-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark cursor-not-allowed"
+                            >
+                                <option value="" disabled selected>Carregando grupos de hosts...</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="condition" class="block text-sm font-medium text-text-dark mb-1">
+                                Condição de Acionamento (Expressão Zabbix)
+                                <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="condition"
+                                disabled
+                                class="w-full disabled-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark cursor-not-allowed"
+                            >
+                                <option value="" disabled selected>Carregando condições de acionamento...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="actionEmail" class="block text-sm font-medium text-text-dark mb-1">
+                                E-mail para Notificação
+                            </label>
+                            <input
+                                type="email"
+                                id="actionEmail"
+                                placeholder="Ex: seu-email@dominio.com"
+                                class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 p-4 bg-gray-50 rounded-xl">
+                    <h2 class="text-lg font-bold text-text-dark">Geração de Impacto</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="journey" class="block text-sm font-medium text-text-dark mb-1">
+                                Jornada
+                            </label>
+                            <input type="text" id="journey" placeholder="Ex: Conta Corrente; Investimentos"
+                                   class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-secundary-blue focus:border-secundary-blue transition-all duration-200 text-text-dark">
+                        </div>
+
+                        <div>
+                            <label for="product" class="block text-sm font-medium text-text-dark mb-1">
+                                Produto
+                            </label>
+                            <input type="text" id="product" placeholder="Ex: Extrato; Pix"
+                                   class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-secundary-blue focus:border-secundary-blue transition-all duration-200 text-text-dark">
+                        </div>
+
+                        <div class="flex flex-col space-y-2">
+                            <button type="button" id="impactButton" disabled
+                                    class="w-full flex items-center justify-center bg-gray-400 text-white py-3 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:scale-105 cursor-not-allowed">
+                                Gerar sugestão de Impacto
+                                <span class="inline-block ml-2 tooltip cursor-help">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    <span class="tooltip-text">Essa opção só é habilitada quando os campos Jornada e Produto são preenchidos.</span>
+                                </span>
+                            </button>
+                            <div id="impactError" class="hidden text-red-600 text-sm text-center"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="impactSection">
+                    <label for="businessImpact" class="block text-sm font-medium text-text-dark mb-1">
+                        Impacto ao negócio
                     </label>
-                    <input type="text" id="product" placeholder="Ex: Extrato; Pix"
-                           class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <textarea id="businessImpact" rows="3" placeholder="Descreva o impacto ao negócio na visão do usuário."
+                               class="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 focus:ring-primary-blue focus:border-primary-blue transition-all duration-200 text-text-dark"></textarea>
                 </div>
-    
-                <!-- Contêiner para o botão de impacto -->
-                <div class="flex space-x-2">
-                    <!-- Botão para gerar sugestão de impacto -->
-                    <button type="button" id="impactButton" disabled
-                            class="flex-grow bg-gray-300 text-gray-800 py-2 rounded-lg font-bold transition-colors duration-300 disabled:bg-gray-300 disabled:text-gray-800 disabled:cursor-not-allowed hover:bg-gray-400 relative">
-                        Gerar sugestão de Impacto
-                        <span class="inline-block text-gray-500 ml-1 tooltip cursor-help">
-                                &#9432;
-                                <span class="tooltip-text">Essa opção só é habilitada quando os campos Jornada e Produto são preenchidos.</span>
-                            </span>
+
+                <button type="button" id="createMonitorBtn" disabled
+                        class="w-full flex items-center justify-center bg-gray-400 text-white py-3 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:scale-105 cursor-not-allowed">
+                    Criar Monitor
+                    <span class="inline-block ml-2 tooltip cursor-help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <span class="tooltip-text">Essa ação só pode ser executada após o preenchimento da ferramenta de monitoração, nome do serviço e tecnologia.</span>
+                    </span>
+                </button>
+
+                <div id="apiErrorContainer" class="mt-4 hidden p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">
+                    <strong class="font-bold">Erro!</strong>
+                    <span id="apiErrorMessage" class="block sm:inline"></span>
+                </div>
+
+            </form>
+
+            <div id="resultSection" class="mt-6 hidden">
+                <div id="congratulations" class="text-center mb-4 p-6 bg-green-100/70 rounded-xl shadow-inner border border-green-200">
+                    <h2 class="text-2xl font-extrabold text-green-800 mb-2">Parabéns! 🎉</h2>
+                    <p id="monitorDetails" class="text-text-dark">O seu monitor foi criado com sucesso!</p>
+                </div>
+
+                <!-- Seção para links de Golden Signals -->
+                <!-- Título da seção alterado para ser mais genérico -->
+                <div id="goldenSignalsContainer" class="mt-4 hidden bg-gray-50 p-6 rounded-xl space-y-3 w-full">
+                    <h3 class="text-lg font-bold text-text-dark">Links dos monitores:</h3>
+                </div>
+
+                <div class="pt-4 flex justify-center">
+                    <button type="button" id="newMonitorBtn"
+                            class="bg-primary-blue text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all duration-300 hover:bg-indigo-700">
+                        Criar novo monitor
                     </button>
                 </div>
             </div>
-
-            <!-- Campo de texto para o impacto no negócio -->
-            <div id="impactSection">
-                <label for="businessImpact" class="block text-gray-700 mb-1 font-semibold">
-                    Impacto ao negócio
-                </label>
-                <textarea id="businessImpact" rows="3" placeholder="Descreva o impacto ao negócio na visão do usuário."
-                              class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"></textarea>
-            </div>
-
-            <!-- Botão para criar o monitor -->
-            <button type="button" id="createMonitorBtn" disabled
-                    class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg font-bold transition-colors duration-300 disabled:bg-gray-300 disabled:text-gray-800 disabled:cursor-not-allowed hover:bg-gray-400 relative">
-                Criar Monitor
-                <span class="inline-block text-gray-500 ml-1 tooltip cursor-help">
-                    &#9432;
-                    <span class="tooltip-text">Essa ação só pode ser executada após o preenchimento da ferramenta de monitoração, nome do serviço e tecnologia.</span>
-                </span>
-            </button>
-
-        </form>
-
-        <!-- Seção para mostrar o link do monitor e o botão de novo monitor -->
-        <div id="resultSection" class="mt-6 hidden">
-            <!-- Mensagem de sucesso e detalhes do monitor -->
-            <div id="congratulations" class="text-center mb-4 p-4 bg-green-100 rounded-lg shadow-inner border border-green-200">
-                <h2 class="text-2xl font-extrabold text-green-800 mb-2">Parabéns! 🎉</h2>
-                <p id="monitorDetails" class="text-gray-700"></p>
-            </div>
-            
-            <div id="monitorLinksContainer" class="bg-gray-100 p-4 rounded-lg text-gray-800 space-y-2 w-full">
-                <!-- Links dos monitores serão injetados aqui -->
-            </div>
-            <button type="button" id="newMonitorBtn"
-                    class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors duration-300">
-                Criar novo monitor
-            </button>
         </div>
-
-    </div>
+    </main>
 
     <script>
         // Obtenção dos elementos do DOM
+        const startButton = document.getElementById('startButton');
+        const introSection = document.getElementById('introSection');
+        const monitorMain = document.getElementById('monitorMain');
+
         const monitorForm = document.getElementById('monitorForm');
+        const serviceNameContainer = document.getElementById('serviceNameContainer');
         const serviceNameInput = document.getElementById('serviceName');
         const monitoringToolSelect = document.getElementById('monitoringTool');
         const datadogOrgContainer = document.getElementById('datadogOrgContainer');
         const datadogOrgSelect = document.getElementById('datadogOrgSelect');
-        const technologySelect = document.getElementById('technologySelect'); // Campo de tecnologia agora é um select
+        const technologyContainer = document.getElementById('technologyContainer');
+        const technologySelect = document.getElementById('technologySelect');
         const journeyInput = document.getElementById('journey');
         const productInput = document.getElementById('product');
         const impactButton = document.getElementById('impactButton');
         const businessImpactTextarea = document.getElementById('businessImpact');
+        const impactErrorDiv = document.getElementById('impactError');
         const createMonitorBtn = document.getElementById('createMonitorBtn');
         const resultSection = document.getElementById('resultSection');
+        const apiErrorContainer = document.getElementById('apiErrorContainer');
+        const apiErrorMessage = document.getElementById('apiErrorMessage');
         const congratulationsSection = document.getElementById('congratulations');
         const monitorDetailsParagraph = document.getElementById('monitorDetails');
-        const monitorLinksContainer = document.getElementById('monitorLinksContainer');
+        const goldenSignalsContainer = document.getElementById('goldenSignalsContainer');
         const newMonitorBtn = document.getElementById('newMonitorBtn');
 
+        // Novos campos específicos para Zabbix
+        const zabbixFieldsContainer = document.getElementById('zabbixFields');
+        const triggerNameInput = document.getElementById('triggerName');
+        const hostGroupSelect = document.getElementById('hostGroup');
+        const conditionSelect = document.getElementById('condition');
+        const actionEmailInput = document.getElementById('actionEmail');
+        
         // Mapeamento das tecnologias por ferramenta de monitoração
         const technologiesByTool = {
             'Datadog': ['Kubernetes', 'Express.js', 'AWS', 'Docker', 'Python', 'Flask', 'Java', 'Spring Boot', 'Node.js', 'Go', 'PHP', 'Ruby'],
@@ -229,7 +350,9 @@
         };
         let currentTechnologies = [];
         const originalImpactBtnText = "Gerar sugestão de Impacto";
-        const loadingBtnText = "Gerando descrição de impacto...";
+        const loadingImpactBtnText = "Gerando...";
+        const originalCreateBtnText = "Criar Monitor";
+        const loadingCreateBtnText = "Criando...";
 
         // Mapeamento das métricas Golden Signals por tecnologia
         const goldenSignalsByTechnology = {
@@ -284,6 +407,42 @@
             ]
         };
 
+        // Dados de grupos de hosts e condições de acionamento do Zabbix (simulados)
+        const zabbixHostGroups = [
+            'Servidores de Produção',
+            'Servidores de Desenvolvimento',
+            'Dispositivos de Rede',
+            'Bancos de Dados'
+        ];
+        const zabbixStandardConditions = [
+            { label: 'Uso de CPU > 80%', expression: '{hostname:system.cpu.util[,user,avg1].last()} > 80' },
+            { label: 'Uso de Memória > 90%', expression: '{hostname:vm.memory.size[pfree].last()} < 10' },
+            { label: 'Espaço em Disco > 95%', expression: '{hostname:vfs.fs.size[/,pfree].last()} < 5' },
+            { label: 'Serviço HTTP indisponível', expression: '{hostname:web.test.fail[Webpage].last()} = 1' }
+        ];
+        /**
+         * Simula uma chamada de API para buscar grupos de hosts do Zabbix.
+         * @returns {Promise<string[]>} Uma promessa que resolve com a lista de grupos.
+         */
+        function fetchZabbixHostGroups() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(zabbixHostGroups);
+                }, 500); // Atraso de 500ms para simular a latência da rede
+            });
+        }
+        /**
+         * Simula uma chamada de API para buscar condições de acionamento padrão do Zabbix.
+         * @returns {Promise<object[]>} Uma promessa que resolve com a lista de condições.
+         */
+        function fetchZabbixStandardConditions() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(zabbixStandardConditions);
+                }, 500); // Atraso de 500ms para simular a latência da rede
+            });
+        }
+
         // Função para preencher o select de tecnologias
         function populateTechnologies(technologies) {
             technologySelect.innerHTML = '<option value="" disabled selected>Selecione a tecnologia</option>';
@@ -294,241 +453,326 @@
                 technologySelect.appendChild(option);
             });
         }
-
-        // Event listener para quando a ferramenta de monitoração é selecionada
-        monitoringToolSelect.addEventListener('change', () => {
-            const selectedTool = monitoringToolSelect.value;
-            currentTechnologies = technologiesByTool[selectedTool] || [];
-            populateTechnologies(currentTechnologies);
-            
-            // Limpa a seleção de tecnologia e valida
-            technologySelect.value = '';
-            validateMonitorCreation();
-            
-            // Lógica para mostrar/esconder o campo "Org Datadog"
-            if (selectedTool === 'Datadog') {
-                datadogOrgContainer.classList.remove('hidden');
-            } else {
-                datadogOrgContainer.classList.add('hidden');
-                datadogOrgSelect.value = ""; // Reseta o valor quando escondido
-            }
-        });
-
-        // Event listener para o select de tecnologia para validar a criação do monitor
-        technologySelect.addEventListener('change', validateMonitorCreation);
         
-        // Event listener para o novo select de Datadog Org
-        datadogOrgSelect.addEventListener('change', validateMonitorCreation);
-
-
-        // Função para validar se os campos obrigatórios para criar o monitor estão preenchidos
-        function validateMonitorCreation() {
-            const isTechnologyValid = technologySelect.value !== '';
-            const isDatadogSelected = monitoringToolSelect.value === 'Datadog';
-            const isDatadogOrgValid = datadogOrgSelect.value !== '';
-            
-            // A validação agora inclui a verificação da organização do Datadog, se aplicável
-            let isFilled;
-            if (isDatadogSelected) {
-                isFilled = serviceNameInput.value.trim() !== '' &&
-                                 isTechnologyValid &&
-                                 isDatadogOrgValid;
-            } else {
-                isFilled = serviceNameInput.value.trim() !== '' &&
-                                 monitoringToolSelect.value.trim() !== '' &&
-                                 isTechnologyValid;
-            }
-
-            createMonitorBtn.disabled = !isFilled;
-            createMonitorBtn.classList.toggle('bg-gray-300', !isFilled);
-            createMonitorBtn.classList.toggle('bg-blue-600', isFilled);
-            createMonitorBtn.classList.toggle('text-gray-800', !isFilled);
-            createMonitorBtn.classList.toggle('text-white', isFilled);
-            createMonitorBtn.classList.toggle('hover:bg-blue-700', isFilled);
-            createMonitorBtn.classList.toggle('hover:bg-gray-400', !isFilled);
-        }
-
-
-        // Função para validar se os campos de impacto estão preenchidos
-        function validateImpactGeneration() {
-            const isFilled = journeyInput.value.trim() !== '' &&
-                                 productInput.value.trim() !== '';
-            
-            // Habilita o botão apenas se os campos estiverem preenchidos.
+        // Função para habilitar/desabilitar o botão de impacto
+        function toggleImpactButton(isFilled) {
             impactButton.disabled = !isFilled;
-            
-            // Adiciona as classes de estilo para o botão habilitado
-            impactButton.classList.toggle('bg-sky-500', isFilled);
-            impactButton.classList.toggle('text-white', isFilled);
-            impactButton.classList.toggle('hover:bg-sky-600', isFilled);
-            
-            // Adiciona as classes de estilo para o botão desabilitado
-            impactButton.classList.toggle('bg-gray-300', !isFilled);
-            impactButton.classList.toggle('text-gray-800', !isFilled);
-            impactButton.classList.toggle('hover:bg-gray-400', !isFilled);
+            if (isFilled) {
+                impactButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                impactButton.classList.add('bg-primary-blue', 'hover:bg-indigo-600');
+            } else {
+                impactButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+                impactButton.classList.remove('bg-primary-blue', 'hover:bg-indigo-600');
+            }
+        }
+        
+        // Função para validar se os campos de impacto estão preenchidos
+        function validateImpactFields() {
+            const isFilled = journeyInput.value.trim() !== '' && productInput.value.trim() !== '';
+            toggleImpactButton(isFilled);
         }
 
-        // Event listener para validar os campos obrigatórios
-        monitorForm.addEventListener('input', (e) => {
-            validateMonitorCreation(); // Valida o botão de criar monitor
-            validateImpactGeneration(); // Valida o botão de gerar impacto
-        });
+        // Função para habilitar/desabilitar o botão de criação
+        function toggleCreateMonitorButton(isFilled) {
+            createMonitorBtn.disabled = !isFilled;
+            if (isFilled) {
+                createMonitorBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                createMonitorBtn.classList.add('bg-primary-blue', 'hover:bg-indigo-700');
+            } else {
+                createMonitorBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                createMonitorBtn.classList.remove('bg-primary-blue', 'hover:bg-indigo-700');
+            }
+        }
+        
+        // **NOVA FUNÇÃO** para habilitar/desabilitar todos os campos do formulário
+        function toggleFormFields(isDisabled) {
+            monitoringToolSelect.disabled = isDisabled;
+            serviceNameInput.disabled = isDisabled;
+            technologySelect.disabled = isDisabled;
+            datadogOrgSelect.disabled = isDisabled;
+            journeyInput.disabled = isDisabled;
+            productInput.disabled = isDisabled;
+            businessImpactTextarea.disabled = isDisabled;
+            impactButton.disabled = isDisabled;
+            createMonitorBtn.disabled = isDisabled;
+            // Campos específicos do Zabbix
+            triggerNameInput.disabled = isDisabled;
+            hostGroupSelect.disabled = isDisabled;
+            conditionSelect.disabled = isDisabled;
+            actionEmailInput.disabled = isDisabled;
 
-        // Event listener para o botão de criar monitor
-        createMonitorBtn.addEventListener('click', () => {
-            if (!createMonitorBtn.disabled) {
-                const selectedTool = monitoringToolSelect.value;
-                const serviceName = serviceNameInput.value.trim();
-                const selectedTechnology = technologySelect.value.trim();
-                
-                // Exibe a mensagem de sucesso dinamicamente
-                monitorDetailsParagraph.textContent = `Monitores criados para o serviço "${serviceName}" na ferramenta "${selectedTool}".`;
-                congratulationsSection.classList.remove('hidden');
+            // Ajusta o estilo dos campos desabilitados
+            const fields = [
+                monitoringToolSelect, serviceNameInput, technologySelect, datadogOrgSelect,
+                journeyInput, productInput, businessImpactTextarea, impactButton, createMonitorBtn,
+                triggerNameInput, hostGroupSelect, conditionSelect, actionEmailInput
+            ];
 
-                monitorLinksContainer.innerHTML = ''; // Limpa os links existentes
-                
-                // Lógica para o Datadog com o ID único
-                if (selectedTool === 'Datadog') {
-                    const metrics = goldenSignalsByTechnology[selectedTechnology] || goldenSignalsByTechnology['default'];
-                    const datadogOrg = datadogOrgSelect.value.toLowerCase(); // 'dev', 'uat' ou 'prd'
-                    
-                    // Array para armazenar os IDs gerados para a mensagem de sucesso
-                    const monitorIds = [];
-
-                    metrics.forEach(item => {
-                        // Gera um novo ID único para cada monitor
-                        const monitorId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                        monitorIds.push(monitorId);
-
-                        // Agora o link é dinâmico de acordo com a organização selecionada e usa o novo ID único
-                        const link = `https://datadog_${datadogOrg}.datadoghq.com/monitors/${monitorId}`;
-                        const div = document.createElement('div');
-                        div.classList.add('flex', 'flex-col', 'md:flex-row', 'md:items-start', 'md:space-x-2');
-                        
-                        const strong = document.createElement('strong');
-                        strong.classList.add('text-gray-800', 'flex-shrink-0');
-                        strong.textContent = `${item.signal}:`;
-
-                        const a = document.createElement('a');
-                        a.id = `monitorLink-${item.signal}`;
-                        a.href = link;
-                        a.target = '_blank';
-                        a.classList.add('text-blue-600', 'hover:underline', 'text-sm', 'flex-grow', 'break-all');
-                        a.textContent = link;
-                        a.title = link; // Adiciona o tooltip padrão do navegador
-
-                        div.appendChild(strong);
-                        div.appendChild(a);
-                        monitorLinksContainer.appendChild(div);
-                    });
-                } else if (selectedTool === 'Zabbix') {
-                    // Lógica para criar monitores Zabbix (exemplo)
-                    const randomId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                    const link = `https://zabbix.exemplo.com/monitors/${randomId}`;
-                    const p = document.createElement('p');
-                    p.classList.add('text-gray-700');
-                    p.textContent = 'Monitor criado com sucesso! Link:';
-                    
-                    const a = document.createElement('a');
-                    a.id = 'monitorLink';
-                    a.href = link;
-                    a.target = '_blank';
-                    a.classList.add('text-blue-600', 'hover:underline', 'break-all');
-                    a.textContent = link;
-
-                    monitorLinksContainer.appendChild(p);
-                    monitorLinksContainer.appendChild(a);
+            fields.forEach(field => {
+                if (isDisabled) {
+                    field.classList.add('disabled-bg', 'cursor-not-allowed');
                 } else {
-                    // Lógica para outras ferramentas
-                    const randomId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                    const link = `https://exemplo.com/monitor/${randomId}`;
-                    const p = document.createElement('p');
-                    p.classList.add('text-gray-700');
-                    p.textContent = 'Monitor criado com sucesso! Link:';
-                    
-                    const a = document.createElement('a');
-                    a.id = 'monitorLink';
-                    a.href = link;
-                    a.target = '_blank';
-                    a.classList.add('text-blue-600', 'hover:underline', 'break-all');
-                    a.textContent = link;
-
-                    monitorLinksContainer.appendChild(p);
-                    monitorLinksContainer.appendChild(a);
+                    field.classList.remove('disabled-bg', 'cursor-not-allowed');
                 }
-
-                resultSection.classList.remove('hidden');
-                monitorForm.classList.add('hidden');
+            });
+            // Revalida os botões depois de habilitar os campos
+            if (!isDisabled) {
+                validateImpactFields();
+                validateMonitorCreation();
             }
-        });
+        }
 
-        // Event listener para o botão de impacto - agora gera um novo impacto a cada clique
-        impactButton.addEventListener('click', async () => {
-            if (!impactButton.disabled) {
-                const journey = journeyInput.value;
-                const product = productInput.value;
-                const prompt = `Com base na jornada: "${journey}" e no produto: "${product}", descreva de forma objetiva o impacto para o usuário final, em caso de falha. A resposta deve ser curta, prática e com foco no que o cliente deixa de conseguir fazer. Exemplo: 'Cliente não consegue concluir sua transferência PIX pelo aplicativo. Sempre pense na experiência do usuário o que ele deixa de fazer com base na jornada e produto.`;
-                
-                // Muda o estado do botão para "carregando"
-                const originalImpactDisabled = impactButton.disabled;
-                impactButton.textContent = loadingBtnText;
-                impactButton.disabled = true;
-                impactButton.classList.remove('bg-sky-500', 'hover:bg-sky-600');
-                impactButton.classList.add('bg-yellow-400', 'cursor-not-allowed', 'text-gray-800');
+        // Função para validar a criação do monitor com base na ferramenta selecionada
+        function validateMonitorCreation() {
+            const selectedTool = monitoringToolSelect.value;
+            let isFormValid = false;
 
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const result = await response.json();
-
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        businessImpactTextarea.value = text;
-                    } else {
-                        businessImpactTextarea.value = "Não foi possível gerar uma sugestão de impacto. Tente novamente.";
-                    }
-                } catch (error) {
-                    console.error('Erro ao chamar a API do Gemini:', error);
-                    businessImpactTextarea.value = "Ocorreu um erro ao gerar a sugestão. Verifique sua conexão e tente novamente.";
-                } finally {
-                    // Restaura o estado inicial do botão
-                    impactButton.textContent = originalImpactBtnText;
-                    impactButton.disabled = originalImpactDisabled; // Restaura o estado de desabilitado original
-                    impactButton.classList.remove('bg-yellow-400', 'cursor-not-allowed', 'text-gray-800');
-                    validateImpactGeneration(); // Revalida o estado do botão para garantir as classes corretas
-                }
+            if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
+                isFormValid = monitoringToolSelect.value !== '' &&
+                                serviceNameInput.value.trim() !== '' &&
+                                technologySelect.value !== '' &&
+                                datadogOrgSelect.value !== '';
+            } else if (selectedTool === 'Zabbix') {
+                isFormValid = monitoringToolSelect.value !== '' &&
+                                triggerNameInput.value.trim() !== '' &&
+                                hostGroupSelect.value !== '' &&
+                                conditionSelect.value !== '';
+            } else {
+                isFormValid = false;
             }
-        });
 
-        // Event listener para o botão de criar um novo monitor
-        newMonitorBtn.addEventListener('click', () => {
-            // Reseta o formulário e a interface
-            monitorForm.reset();
-            resultSection.classList.add('hidden');
-            monitorForm.classList.remove('hidden');
-            monitorLinksContainer.innerHTML = ''; // Limpa os links
-            datadogOrgContainer.classList.add('hidden'); // Esconde o campo da org Datadog
+            toggleCreateMonitorButton(isFormValid);
+        }
+        
+        /**
+         * Gera links de exemplo para o monitor criado.
+         * @param {string} tool - A ferramenta de monitoramento.
+         * @returns {object[]} Um array de objetos com o nome e o URL do link.
+         */
+        function generateMonitorLinks(tool, monitorName) {
+            const linkBaseUrl = "https://example.com";
+            switch (tool) {
+                case 'Datadog':
+                    const technology = technologySelect.value;
+                    const goldenSignals = goldenSignalsByTechnology[technology] || goldenSignalsByTechnology['default'];
+                    return goldenSignals.map(signal => ({
+                        name: `Monitor ${signal.signal}: ${signal.metric}`,
+                        url: `https://app.datadoghq.com/monitors#create/metric?q=avg:${signal.metric}{service:${monitorName}}`
+                    }));
+                case 'Zabbix':
+                    return [
+                        { name: `Trigger: ${monitorName}`, url: `${linkBaseUrl}/zabbix/triggers` },
+                        { name: 'Dashboard de Alertas', url: `${linkBaseUrl}/zabbix/alerts` }
+                    ];
+                case 'Dynatrace':
+                    return [
+                        { name: `Monitor: ${monitorName}`, url: `${linkBaseUrl}/dynatrace/monitors` },
+                        { name: 'Serviços Dynatrace', url: `${linkBaseUrl}/dynatrace/services` }
+                    ];
+                default:
+                    return [];
+            }
+        }
+
+
+        // Função para criar o monitor (agora com lógica de exibição)
+        async function createMonitor() {
+            // Desabilita o formulário inteiro
+            toggleFormFields(true);
+            createMonitorBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg> ${loadingCreateBtnText}`;
+
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simula o tempo de API
             
-            // Re-valida os botões e restaura o texto do botão de impacto
-            impactButton.textContent = originalImpactBtnText;
+            // Reverte o estado do botão antes de ocultar o formulário.
+            createMonitorBtn.innerHTML = `${originalCreateBtnText}
+                <span class="inline-block ml-2 tooltip cursor-help">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <span class="tooltip-text">Essa ação só pode ser executada após o preenchimento da ferramenta de monitoração, nome do serviço e tecnologia.</span>
+                </span>`;
+
+            const selectedTool = monitoringToolSelect.value;
+            const serviceName = serviceNameInput.value.trim();
+            const triggerName = triggerNameInput.value.trim();
+
+            monitorDetailsParagraph.innerHTML = `O seu monitor foi criado com sucesso!`;
+            
+            goldenSignalsContainer.innerHTML = '<h3 class="text-lg font-bold text-text-dark">Link do monitor:</h3>';
+            
+            let links = [];
+            let monitorName = '';
+            if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
+                monitorName = serviceName;
+                links = generateMonitorLinks(selectedTool, monitorName);
+            } else if (selectedTool === 'Zabbix') {
+                monitorName = triggerName;
+                links = generateMonitorLinks(selectedTool, monitorName);
+            }
+            
+            // Adiciona os links gerados ao container
+            links.forEach(link => {
+                const signalLink = document.createElement('a');
+                signalLink.href = link.url;
+                signalLink.target = "_blank";
+                signalLink.className = "block bg-white hover:bg-gray-100 p-3 rounded-lg border border-gray-200 transition-all text-text-dark font-semibold";
+                signalLink.textContent = link.name;
+                goldenSignalsContainer.appendChild(signalLink);
+            });
+            
+            if (links.length > 0) {
+                goldenSignalsContainer.classList.remove('hidden');
+            } else {
+                goldenSignalsContainer.classList.add('hidden');
+            }
+
+            monitorForm.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+
+            console.log("Monitor criado com sucesso. O formulário foi ocultado e a seção de resultados foi exibida.");
+        }
+
+        // Função para gerar a sugestão de impacto
+        async function generateImpactSuggestion() {
+            // Desabilita o botão e mostra o estado de loading
+            impactButton.disabled = true;
+            impactButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg> ${loadingImpactBtnText}`;
+            impactErrorDiv.classList.add('hidden');
+
+            const journey = journeyInput.value;
+            const product = productInput.value;
+            const prompt = `Gere uma descrição de impacto ao negócio de no máximo 150 caracteres, baseado na jornada "${journey}" e no produto "${product}".`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "" 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    businessImpactTextarea.value = text;
+                } else {
+                    impactErrorDiv.textContent = 'Não foi possível gerar a sugestão. Tente novamente.';
+                    impactErrorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Erro ao chamar a API:", error);
+                impactErrorDiv.textContent = 'Ocorreu um erro ao gerar a sugestão. Verifique sua conexão ou tente mais tarde.';
+                impactErrorDiv.classList.remove('hidden');
+            } finally {
+                // Restaura o botão
+                impactButton.disabled = false;
+                impactButton.innerHTML = `${originalImpactBtnText}
+                    <span class="inline-block ml-2 tooltip cursor-help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <span class="tooltip-text">Essa opção só é habilitada quando os campos Jornada e Produto são preenchidos.</span>
+                    </span>`;
+            }
+        }
+        
+        // Função para preencher dinamicamente os campos do Zabbix
+        async function populateZabbixFields() {
+            try {
+                // Simula o preenchimento com dados da "API"
+                const hostGroups = await fetchZabbixHostGroups();
+                hostGroupSelect.innerHTML = '<option value="" disabled selected>Selecione um grupo de hosts</option>';
+                hostGroups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group;
+                    option.textContent = group;
+                    hostGroupSelect.appendChild(option);
+                });
+                hostGroupSelect.disabled = false;
+                hostGroupSelect.classList.remove('disabled-bg', 'cursor-not-allowed');
+
+                const conditions = await fetchZabbixStandardConditions();
+                conditionSelect.innerHTML = '<option value="" disabled selected>Selecione uma condição</option>';
+                conditions.forEach(cond => {
+                    const option = document.createElement('option');
+                    option.value = cond.expression;
+                    option.textContent = cond.label;
+                    conditionSelect.appendChild(option);
+                });
+                conditionSelect.disabled = false;
+                conditionSelect.classList.remove('disabled-bg', 'cursor-not-allowed');
+
+            } catch (error) {
+                console.error("Erro ao buscar dados do Zabbix:", error);
+            }
+        }
+        
+        // Função para resetar o formulário
+        function resetForm() {
+            // Habilita o formulário inteiro
+            toggleFormFields(false);
+            monitorForm.classList.remove('hidden');
+            monitorMain.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+            apiErrorContainer.classList.add('hidden');
+            monitorDetailsCard.classList.add('hidden');
+            zabbixFieldsContainer.classList.add('hidden');
+            populateTechnologies([]); // Limpa as opções de tecnologia
             validateMonitorCreation();
-            validateImpactGeneration();
+            validateImpactFields();
+        }
+
+        // Adicionando os event listeners
+        startButton.addEventListener('click', () => {
+            introSection.classList.add('hidden');
+            monitorMain.classList.remove('hidden');
         });
 
-        // Chamada inicial para definir o estado dos botões
+        monitoringToolSelect.addEventListener('change', (e) => {
+            const selectedTool = e.target.value;
+            populateTechnologies(technologiesByTool[selectedTool] || []);
+            
+            if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
+                monitorDetailsCard.classList.remove('hidden');
+                zabbixFieldsContainer.classList.add('hidden');
+            } else if (selectedTool === 'Zabbix') {
+                monitorDetailsCard.classList.add('hidden');
+                zabbixFieldsContainer.classList.remove('hidden');
+                populateZabbixFields();
+            } else {
+                monitorDetailsCard.classList.add('hidden');
+                zabbixFieldsContainer.classList.add('hidden');
+            }
+            validateMonitorCreation();
+        });
+        serviceNameInput.addEventListener('input', validateMonitorCreation);
+        technologySelect.addEventListener('change', validateMonitorCreation);
+        datadogOrgSelect.addEventListener('change', validateMonitorCreation);
+        
+        journeyInput.addEventListener('input', validateImpactFields);
+        productInput.addEventListener('input', validateImpactFields);
+        // Novos listeners para Zabbix
+        triggerNameInput.addEventListener('input', validateMonitorCreation);
+        hostGroupSelect.addEventListener('change', validateMonitorCreation);
+        conditionSelect.addEventListener('change', validateMonitorCreation);
+
+
+        impactButton.addEventListener('click', generateImpactSuggestion);
+        createMonitorBtn.addEventListener('click', createMonitor);
+        newMonitorBtn.addEventListener('click', resetForm);
+
+        // Chamada inicial para preencher as tecnologias vazias e validar
         validateMonitorCreation();
-        validateImpactGeneration();
+        validateImpactFields();
     </script>
 </body>
 </html>
