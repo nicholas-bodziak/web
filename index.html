@@ -100,6 +100,85 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
+/* Netflix CSS added by assistant */
+
+.tool-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px; /* borda levemente arredondada */
+    border: 1px solid rgba(2,6,23,0.06); /* borda sutil */
+    overflow: hidden; /* para que o zoom não extrapole os cantos arredondados */
+    background-color: white;
+}
+.tool-card:hover {
+    transform: scale(1.06);
+    box-shadow: 0 12px 30px rgba(2,6,23,0.12);
+}
+.tool-card img {
+    display: block;
+    max-width: 64px;
+    max-height: 64px;
+    width: auto;
+    height: auto;
+    margin: 8px auto 12px auto;
+    object-fit: contain;
+}
+
+
+.tool-card ul li {
+    line-height: 1.4;
+    font-size: 0.8rem; /* levemente menor */
+    color: #4B5563; /* mantém cor suave */
+}
+
+
+.tool-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+.tool-card img {
+    margin-bottom: 12px;
+}
+.tool-card h3 {
+    margin-bottom: 8px;
+    text-align: center;
+}
+.tool-card ul {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+
+/* Alinhamento uniforme para todos os cards de ferramentas */
+.grid .tool-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+}
+.tool-card img {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+.tool-card h3 {
+    margin-bottom: 8px;
+    text-align: center;
+}
+.tool-card ul {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+}
+
 </style>
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-body-bg">
@@ -115,12 +194,12 @@
             </p>
             
             <!-- Seção com ícones e prós das ferramentas -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left items-stretch">
                 <!-- Datadog -->
                 <div class="flex flex-col items-center tool-card">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/datadog/datadog-original.svg" alt="Datadog Icon" class="w-16 h-16 mb-4">
                     <h3 class="text-xl font-bold text-text-dark mb-2">Datadog</h3>
-                    <ul class="text-sm text-text-light space-y-1 text-center">
+                    <ul class="text-xs text-text-light space-y-1 text-center">
                         <li>Observabilidade completa</li>
                         <li>Interface de usuário intuitiva</li>
                         <li>Automação e alertas avançados</li>
@@ -130,9 +209,9 @@
                 
                 <!-- Zabbix -->
                 <div class="flex flex-col items-center tool-card">
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/zabbix/zabbix-original-wordmark.svg" alt="Zabbix Icon" class="w-16 h-16 mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Zabbix_logo.svg" alt="Zabbix Icon" class="w-16 h-16 mb-4">
                     <h3 class="text-xl font-bold text-text-dark mb-2">Zabbix</h3>
-                    <ul class="text-sm text-text-light space-y-1 text-center">
+                    <ul class="text-xs text-text-light space-y-1 text-center">
                         <li>Solução de código aberto</li>
                         <li>Monitoramento robusto e escalável</li>
                         <li>Configurações altamente personalizáveis</li>
@@ -144,7 +223,7 @@
                 <div class="flex flex-col items-center tool-card">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynatrace/dynatrace-original.svg" alt="Dynatrace Icon" class="w-16 h-16 mb-4">
                     <h3 class="text-xl font-bold text-text-dark mb-2">Dynatrace</h3>
-                    <ul class="text-sm text-text-light space-y-1 text-center">
+                    <ul class="text-xs text-text-light space-y-1 text-center">
                         <li>Monitoramento Full-Stack</li>
                         <li>Análise de causa raiz automática</li>
                         <li>Inteligência artificial integrada</li>
@@ -460,6 +539,9 @@
             ]
         };
 
+let isGeneratingImpact = false; // Controle para saber se o impacto está sendo gerado
+
+
         // Dados de grupos de hosts e condições de acionamento do Zabbix (simulados)
         const zabbixHostGroups = [
             'Servidores de Produção',
@@ -560,31 +642,26 @@
     let isValid = false;
     const tooltip = createMonitorBtn.querySelector('.tooltip');
 
-    if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
-        isValid = serviceNameInput.value.trim() !== '' && technologySelect.value !== '' &&
-                  (selectedTool === 'Dynatrace' || datadogOrgSelect.value !== '');
-    } else if (selectedTool === 'Zabbix') {
-        isValid = triggerNameInput.value.trim() !== '' && hostGroupSelect.value !== '' &&
-                  conditionSelect.value !== '' && zabbixServiceNameInput.value.trim() !== '';
+    // Se estiver gerando impacto, não deixa criar monitor
+    if (!isGeneratingImpact) {
+        if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
+            isValid = serviceNameInput.value.trim() !== '' && technologySelect.value !== '' &&
+                      (selectedTool === 'Dynatrace' || datadogOrgSelect.value !== '');
+        } else if (selectedTool === 'Zabbix') {
+            isValid = triggerNameInput.value.trim() !== '' && hostGroupSelect.value !== '' &&
+                      conditionSelect.value !== '' && zabbixServiceNameInput.value.trim() !== '';
+        }
     }
 
     if (isValid) {
         createMonitorBtn.disabled = false;
         createMonitorBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
         createMonitorBtn.classList.add('bg-primary-blue', 'hover:bg-[#1A2D4A]');
-        if (tooltip) tooltip.remove(); // Remove tooltip quando habilitado
+        if (tooltip) tooltip.remove();
     } else {
         createMonitorBtn.disabled = true;
         createMonitorBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
         createMonitorBtn.classList.remove('bg-primary-blue', 'hover:bg-[#1A2D4A]');
-        if (!tooltip) {
-            createMonitorBtn.innerHTML += `
-                <span class="inline-block ml-2 tooltip cursor-help">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    <span class="tooltip-text">Essa ação só pode ser executada após o preenchimento da ferramenta de monitoração, nome do serviço e tecnologia.</span>
-                </span>
-            `;
-        }
     }
 }
 
@@ -691,7 +768,7 @@
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 
                 const payload = { contents: chatHistory };
-                const apiKey = "" 
+                const apiKey = "AIzaSyDrSTdQlVDD31wQlLHubHbl_dDaWzFlLXA" 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -727,8 +804,34 @@
         }
 
 
-        // Função para exibir a seção de resultados e os links
-        function showResultSection() {
+            function showResultSection() {
+            // Adiciona o título "Libs de Monitoração" acima da caixa de Parabéns
+            const resultSectionEl = document.getElementById('resultSection');
+            const titleEl = document.createElement('h1');
+            titleEl.textContent = 'Libs de Monitoração';
+            titleEl.className = 'text-3xl md:text-4xl font-bold text-[#05132A] mb-6 text-center';
+            
+            // Insere o título como o primeiro elemento dentro da seção de resultados
+            resultSectionEl.insertBefore(titleEl, resultSectionEl.firstChild);
+
+            // Remove o cabeçalho com a frase "Automatize a criação de monitores."
+            const headerEl = document.querySelector('header');
+            if (headerEl) {
+                headerEl.remove();
+            }
+
+            document.querySelectorAll('header p').forEach(el => {
+                if (el.textContent.trim() === "Automatize a criação de monitores.") {
+                    el.remove();
+                }
+            });
+
+            const subtitleEl = document.querySelector('header p.text-text-light');
+            if (subtitleEl) {
+                subtitleEl.remove();
+            }
+
+
             const selectedTool = monitoringToolSelect.value;
             const selectedTechnology = technologySelect.value;
             let monitorName = '';
@@ -884,7 +987,13 @@
         zabbixServiceNameInput.addEventListener('input', validateMonitorCreation);
 
         impactButton.addEventListener('click', generateImpactSuggestion);
-        createMonitorBtn.addEventListener('click', createMonitor);
+        createMonitorBtn.addEventListener('click', () => {
+    if (isGeneratingImpact) {
+        showCustomModal("Aguarde a finalização da geração do impacto antes de criar o monitor.");
+        return;
+    }
+    createMonitor();
+});
         newMonitorBtn.addEventListener('click', resetForm);
 
         // Chamada inicial para preencher as tecnologias vazias e validar
