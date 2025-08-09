@@ -289,7 +289,7 @@
             <div id="resultSection" class="mt-6 hidden">
                 <div id="congratulations" class="text-center mb-4 p-6 bg-green-100/70 rounded-xl shadow-inner border border-green-200">
                     <h2 class="text-2xl font-extrabold text-green-800 mb-2">Parabéns! 🎉</h2>
-                    <p id="monitorDetails" class="text-text-dark">O seu monitor foi criado com sucesso!</p>
+                    <p id="monitorDetails" class="text-text-dark">Monitor criado com sucesso para o serviço: ${monitorName}</p>
                 </div>
 
                 <!-- Seção para links de Golden Signals -->
@@ -352,7 +352,7 @@
         };
         let currentTechnologies = [];
         const originalImpactBtnText = "Gerar sugestão de Impacto";
-        const loadingImpactBtnText = "Gerando...";
+        const loadingImpactBtnText = "Gerando impacto...";
         const originalCreateBtnText = "Criar Monitor";
         const loadingCreateBtnText = "Criando...";
 
@@ -670,7 +670,7 @@
                 monitorName = serviceNameInput.value;
             }
 
-            monitorDetailsParagraph.textContent = `O seu monitor "${monitorName}" foi criado com sucesso!`;
+            monitorDetailsParagraph.textContent = `Monitor criado com sucesso para o serviço: ${monitorName}`;
             goldenSignalsContainer.classList.remove('hidden');
 
             if (selectedTool === 'Datadog') {
