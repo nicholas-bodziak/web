@@ -91,17 +91,68 @@
         .disabled-bg {
             background-color: #E5E7EB; /* Cor cinza mais clara */
         }
-    </style>
+    
+.tool-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.tool-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+</style>
 </head>
+<body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-body-bg">
+
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen bg-body-bg">
 
     <!-- Tela de Introdução -->
     <div id="introSection" class="w-full max-w-3xl mx-auto text-center">
         <div class="bg-card-bg p-6 md:p-10 rounded-2xl shadow-2xl space-y-6">
             <h1 class="text-3xl md:text-4xl font-bold text-[#05132A] mb-4">Bem-vindo à Libs de Monitoração</h1>
-            <p class="text-lg text-text-dark">
+            <p class="text-lg text-text-dark mb-8">
                 Esta ferramenta permite que você crie de forma rápida e prática monitores para Datadog e Dynatrace, além de triggers e alertas para Zabbix, tudo de maneira automática.
             </p>
+            
+            <!-- Seção com ícones e prós das ferramentas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                <!-- Datadog -->
+                <div class="flex flex-col items-center tool-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/datadog/datadog-original.svg" alt="Datadog Icon" class="w-16 h-16 mb-4">
+                    <h3 class="text-xl font-bold text-text-dark mb-2">Datadog</h3>
+                    <ul class="text-sm text-text-light space-y-1 text-center">
+                        <li>Observabilidade completa</li>
+                        <li>Interface de usuário intuitiva</li>
+                        <li>Automação e alertas avançados</li>
+                        <li>Integrações com diversas tecnologias</li>
+                    </ul>
+                </div>
+                
+                <!-- Zabbix -->
+                <div class="flex flex-col items-center tool-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/zabbix/zabbix-original-wordmark.svg" alt="Zabbix Icon" class="w-16 h-16 mb-4">
+                    <h3 class="text-xl font-bold text-text-dark mb-2">Zabbix</h3>
+                    <ul class="text-sm text-text-light space-y-1 text-center">
+                        <li>Solução de código aberto</li>
+                        <li>Monitoramento robusto e escalável</li>
+                        <li>Configurações altamente personalizáveis</li>
+                        <li>Comunidade ativa e suporte técnico</li>
+                    </ul>
+                </div>
+                
+                <!-- Dynatrace -->
+                <div class="flex flex-col items-center tool-card">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dynatrace/dynatrace-original.svg" alt="Dynatrace Icon" class="w-16 h-16 mb-4">
+                    <h3 class="text-xl font-bold text-text-dark mb-2">Dynatrace</h3>
+                    <ul class="text-sm text-text-light space-y-1 text-center">
+                        <li>Monitoramento Full-Stack</li>
+                        <li>Análise de causa raiz automática</li>
+                        <li>Inteligência artificial integrada</li>
+                        <li>Visualização de topologia de serviço</li>
+                    </ul>
+                </div>
+            </div>
+            
             <button id="startButton"
                     class="w-full sm:w-auto mt-6 bg-primary-blue text-white py-3 px-8 rounded-xl font-semibold shadow-md transition-colors hover:bg-[#1A2D4A]">
                 Iniciar criação do monitor
@@ -505,39 +556,62 @@
 
         // Função para validar se os campos de monitoramento estão preenchidos
         function validateMonitorCreation() {
-            const selectedTool = monitoringToolSelect.value;
-            let isValid = false;
+    const selectedTool = monitoringToolSelect.value;
+    let isValid = false;
+    const tooltip = createMonitorBtn.querySelector('.tooltip');
 
-            if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
-                isValid = serviceNameInput.value.trim() !== '' && technologySelect.value !== '' && (selectedTool === 'Dynatrace' || datadogOrgSelect.value !== '');
-            } else if (selectedTool === 'Zabbix') {
-                isValid = triggerNameInput.value.trim() !== '' && hostGroupSelect.value !== '' && conditionSelect.value !== '' && zabbixServiceNameInput.value.trim() !== '';
-            }
+    if (selectedTool === 'Datadog' || selectedTool === 'Dynatrace') {
+        isValid = serviceNameInput.value.trim() !== '' && technologySelect.value !== '' &&
+                  (selectedTool === 'Dynatrace' || datadogOrgSelect.value !== '');
+    } else if (selectedTool === 'Zabbix') {
+        isValid = triggerNameInput.value.trim() !== '' && hostGroupSelect.value !== '' &&
+                  conditionSelect.value !== '' && zabbixServiceNameInput.value.trim() !== '';
+    }
 
-            if (isValid) {
-                createMonitorBtn.disabled = false;
-                createMonitorBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                createMonitorBtn.classList.add('bg-primary-blue', 'hover:bg-[#1A2D4A]');
-            } else {
-                createMonitorBtn.disabled = true;
-                createMonitorBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                createMonitorBtn.classList.remove('bg-primary-blue', 'hover:bg-[#1A2D4A]');
-            }
+    if (isValid) {
+        createMonitorBtn.disabled = false;
+        createMonitorBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        createMonitorBtn.classList.add('bg-primary-blue', 'hover:bg-[#1A2D4A]');
+        if (tooltip) tooltip.remove(); // Remove tooltip quando habilitado
+    } else {
+        createMonitorBtn.disabled = true;
+        createMonitorBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        createMonitorBtn.classList.remove('bg-primary-blue', 'hover:bg-[#1A2D4A]');
+        if (!tooltip) {
+            createMonitorBtn.innerHTML += `
+                <span class="inline-block ml-2 tooltip cursor-help">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <span class="tooltip-text">Essa ação só pode ser executada após o preenchimento da ferramenta de monitoração, nome do serviço e tecnologia.</span>
+                </span>
+            `;
         }
+    }
+}
 
         // Função para validar se os campos de impacto estão preenchidos
         function validateImpactFields() {
-            const hasImpactFields = journeyInput.value.trim() !== '' && productInput.value.trim() !== '';
-            if (hasImpactFields) {
-                impactButton.disabled = false;
-                impactButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                impactButton.classList.add('bg-secundary-blue', 'hover:bg-[#1A2D4A]');
-            } else {
-                impactButton.disabled = true;
-                impactButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-                impactButton.classList.remove('bg-secundary-blue', 'hover:bg-[#1A2D4A]');
-            }
+    const hasImpactFields = journeyInput.value.trim() !== '' && productInput.value.trim() !== '';
+    const tooltip = impactButton.querySelector('.tooltip');
+
+    if (hasImpactFields) {
+        impactButton.disabled = false;
+        impactButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        impactButton.classList.add('bg-secundary-blue', 'hover:bg-[#1A2D4A]');
+        if (tooltip) tooltip.remove(); // Remove tooltip quando habilitado
+    } else {
+        impactButton.disabled = true;
+        impactButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+        impactButton.classList.remove('bg-secundary-blue', 'hover:bg-[#1A2D4A]');
+        if (!tooltip) {
+            impactButton.innerHTML += `
+                <span class="inline-block ml-2 tooltip cursor-help">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <span class="tooltip-text">Essa opção só é habilitada quando os campos Jornada e Produto são preenchidos.</span>
+                </span>
+            `;
         }
+    }
+}
 
         // Função para exibir um modal customizado
         function showCustomModal(message) {
@@ -596,7 +670,7 @@
         // Função para gerar uma sugestão de impacto usando o modelo Gemini
         async function generateImpactSuggestion() {
             const journey = journeyInput.value.trim();
-            const product = product.value.trim();
+            const product = productInput.value.trim();
             if (journey === '' || product === '') {
                 showCustomModal('Por favor, preencha os campos Jornada e Produto para gerar uma sugestão de impacto.');
                 return;
